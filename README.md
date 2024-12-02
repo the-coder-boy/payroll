@@ -10,20 +10,12 @@
 `
 
     +------------+-------------+------+-----+---------+-------+
-
     | Field      | Type        | Null | Key | Default | Extra |
-
     +------------+-------------+------+-----+---------+-------+
-
     | emp_id     | int         | NO   | PRI | NULL    |       |
-
     | name       | varchar(50) | YES  |     | NULL    |       |
-
     | position   | varchar(50) | YES  |     | NULL    |       |
-
     | salary     | float       | YES  |     | NULL    |       |
-
     | department | varchar(50) | YES  |     | NULL    |       |
-
     +------------+-------------+------+-----+---------+-------+
 `
