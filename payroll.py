@@ -102,9 +102,9 @@ def update_info(connection):
 
         # Calculate DA based on existing date_of_joining
         if joining_month <= 6:
-            new_da = 0.28 * new_salary
+            new_da = float(0.28 * new_salary)
         else:
-            new_da = 0.14 * new_salary
+            new_da = float(0.14 * new_salary)
 
         # Recalculate HRA and PF
         hra = 0.08 * new_salary
@@ -127,9 +127,9 @@ def update_info(connection):
             salary = cursor.fetchone()[0]  # Fetch current salary of the employee
             
             if joining_month <= 6:  # Before or in June
-                new_da = 0.28 * salary
+                new_da = float(0.28 * salary)
             else:  # After or in July
-                new_da = 0.14 * salary
+                new_da = float(0.14 * salary)
 
             query = f"""
             UPDATE {table} 
@@ -169,7 +169,7 @@ def take_loan(connection):
 
         if loan_amount <= max_loan:
             new_pf = pf_amount - loan_amount
-            update_query = f"UPDATE {table} SET PF = {new_pf} WHERE emp_id = {emp_id};"
+            update_query = f"UPDATE {table} SET PF = {float(new_pf)} WHERE emp_id = {emp_id};"
             try:
                 cursor.execute(update_query)
                 connection.commit()
@@ -201,14 +201,14 @@ def PF_increment(connection):
                 if (e_pf!=new_pf):
                     query = f"""
                         UPDATE {table} 
-                        SET PF = {new_pf} 
+                        SET PF = {float(new_pf)} 
                         WHERE emp_id = {i[0]};
                         """
                     cursor.execute(query)
                     connection.commit()
 
             else:
-                new_pf = 0.24*i[3]
+                new_pf = 0.24*float(i[3])
                 query = f"""
                         UPDATE {table} 
                         SET PF = {new_pf} 
@@ -226,7 +226,7 @@ def PF_increment(connection):
             new_pf = (0.24+0.0825*total_months)*i[3]
             query = f"""
                         UPDATE {table} 
-                        SET PF = {new_pf} 
+                        SET PF = {float(new_pf)} 
                         WHERE emp_id = {i[0]};
                         """
             cursor.execute(query)
