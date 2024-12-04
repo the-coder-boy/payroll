@@ -62,9 +62,14 @@ def display_employees(connection):
     cursor.execute(query)
     results = cursor.fetchall()
     print("\n--- Employee Records ---")
-    print("ID | Name | Position | Salary | Department | PF | DA | HRA | Medical Leave | Working Days | Date of Joining")
+    print(
+        f"{'ID':<5} | {'Name':<15} | {'Position':<15} | {'Salary':<10} | {'Department':<15} | {'PF':<10} | {'DA':<10} | {'HRA':<10} | {'Medical Leave':<13} | {'Working Days':<5} | {'Date of Joining':<10} | {'Loan Taken':<10} | {'Amount To Pay':<10} | {'Loan Date':<15}"
+    )
+    print("-" * 170)
     for row in results:
-        print(" | ".join(map(str, row)))
+        print(
+            f"{row[0]:<5} | {row[1]:<15} | {row[2]:<15} | {row[3]:<10.2f} | {row[4]:<15} | {row[5]:<10.2f} | {row[6]:<10.2f} | {row[7]:<10.2f} | {row[8]:<15} | {row[9]:<5} | {row[10]} | {row[11]:<10} | {row[12]:<10.2f} | {row[13]}"
+        )
 
 # Update employee info
 def update_info(connection):
@@ -77,6 +82,7 @@ def update_info(connection):
     print("4. Salary")
     print("5. Date of Joining")
     print("6. Medical Leave Days")
+    print("7. Loan date")
 
     choice = int(input("Enter your choice (1-6): "))
 
@@ -142,9 +148,22 @@ def update_info(connection):
     elif choice == 6:
         new_medical_leave = int(input("Enter New Medical Leave Days: "))
         query = f"UPDATE {table} SET medical_leave = {new_medical_leave} WHERE emp_id = {emp_id};"
+
+    elif choice == 7:
+        new_date = input("Enter New Loan Date (YYYY-MM-DD): ")
+        try:
+            query = f"""
+            UPDATE {table} 
+            SET loan_date = '{new_date}'
+            WHERE emp_id = {emp_id};
+            """
+        except ValueError:
+            print("Invalid date format. Please use YYYY-MM-DD.")
+            return
     else:
         print("Invalid choice.")
         return
+    
 
     try:
         cursor.execute(query)
@@ -169,7 +188,8 @@ def take_loan(connection):
 
         if loan_amount <= max_loan:
             new_pf = pf_amount - loan_amount
-            update_query = f"UPDATE {table} SET PF = {float(new_pf)} WHERE emp_id = {emp_id};"
+            loan_date = input("Enter the date of loan (YYYY-MM-DD) - ")
+            update_query = f"UPDATE {table} SET PF = {float(new_pf)}, loan_taken = {loan_amount}, loan_date = '{loan_date}' WHERE emp_id = {emp_id};"
             try:
                 cursor.execute(update_query)
                 connection.commit()
@@ -182,7 +202,7 @@ def take_loan(connection):
         print("Employee not found.")
 
 # increase PF
-def PF_increment(connection):
+def PF_Loan_Manage(connection):
     cursor = connection.cursor()
     ct = datetime.now().strftime('%Y-%m-%d')
     cm = int(str(ct).split("-")[1])
@@ -193,6 +213,8 @@ def PF_increment(connection):
     for i in result:
         joining_month = int(str(i[10]).split("-")[1])
         join_year = int(str(i[10]).split("-")[0])
+
+        # handling pf
         if (cy==join_year):
             diff = cm-joining_month
             if (diff>0):
@@ -201,7 +223,7 @@ def PF_increment(connection):
                 if (e_pf!=new_pf):
                     query = f"""
                         UPDATE {table} 
-                        SET PF = {float(new_pf)} 
+                        SET PF = {float(new_pf)}
                         WHERE emp_id = {i[0]};
                         """
                     cursor.execute(query)
@@ -209,6 +231,7 @@ def PF_increment(connection):
 
             else:
                 new_pf = 0.24*float(i[3])
+                
                 query = f"""
                         UPDATE {table} 
                         SET PF = {new_pf} 
@@ -224,14 +247,37 @@ def PF_increment(connection):
                 total_months = 12-joining_month+ (cy-join_year-1)*12+cm
                 
             new_pf = (0.24+0.0825*total_months)*i[3]
+
             query = f"""
                         UPDATE {table} 
-                        SET PF = {float(new_pf)} 
+                        SET PF = {float(new_pf)}
                         WHERE emp_id = {i[0]};
                         """
             cursor.execute(query)
             connection.commit()
-
+        
+        #handling loan amount to pay
+        try:
+            loan_year = int(str(i[13]).split("-")[0])
+            
+            if (cy-loan_year==0):
+                query = f"""
+                            UPDATE {table} 
+                            SET amount_topay={float(i[11])}
+                            WHERE emp_id = {i[0]};
+                            """
+                cursor.execute(query)
+                connection.commit()
+            elif (cy-loan_year>0):
+                query = f"""
+                            UPDATE {table} 
+                            SET amount_topay={float(i[11]+i[11]*0.09*(cy-loan_year))}
+                            WHERE emp_id = {i[0]};
+                            """
+                cursor.execute(query)
+                connection.commit()
+        except:
+            pass
 
 # Show instructions
 def show_instructions():
@@ -296,7 +342,7 @@ def main():
             break
         else:
             print("Invalid choice. Please try again.")
-        PF_increment(connection)
+        PF_Loan_Manage(connection)
 
 if __name__ == "__main__":
     main()
