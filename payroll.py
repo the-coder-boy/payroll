@@ -62,14 +62,26 @@ def display_employees(connection):
     cursor.execute(query)
     results = cursor.fetchall()
     print("\n--- Employee Records ---")
-    print(
-        f"{'ID':<5} | {'Name':<15} | {'Position':<15} | {'Salary':<10} | {'Department':<15} | {'PF':<10} | {'DA':<10} | {'HRA':<10} | {'Medical Leave':<13} | {'Working Days':<5} | {'Date of Joining':<10} | {'Loan Taken':<10} | {'Amount To Pay':<10} | {'Loan Date':<15}"
-    )
-    print("-" * 170)
+   
+    print("-" * 80)
     for row in results:
-        print(
-            f"{row[0]:<5} | {row[1]:<15} | {row[2]:<15} | {row[3]:<10.2f} | {row[4]:<15} | {row[5]:<10.2f} | {row[6]:<10.2f} | {row[7]:<10.2f} | {row[8]:<15} | {row[9]:<5} | {row[10]} | {row[11]:<10} | {row[12]:<10.2f} | {row[13]}"
-        )
+        print(f'ID - {row[0]}')
+        print(f'Name - {row[1]}')
+        print(f'Position - {row[2]}')
+        print(f'Salary - {row[3]}')
+        print(f'Department - {row[4]}')
+        print(f'PF - {row[5]}')
+        print(f'DA - {row[6]}')
+        print(f'HRA - {row[7]}')
+        print(f'Medical Leave - {row[8]}')
+        print(f'Working Days - {row[9]}')
+        print(f'Date of joining - {row[10]}')
+        print(f'Loan Taken - {row[11]}')
+        print(f'Amount To Pay - {row[12]}')
+        print(f'Loan Date - {row[13]}')
+
+        print("-" * 80)
+
 
 # Update employee info
 def update_info(connection):
@@ -287,6 +299,7 @@ def show_instructions():
     print("3. PF accrues 8.25% monthly interest from the company contribution.")
     print("4. DA is given twice a year (Jan-June and July-Dec) at 14%.")
     print("5. Maximum loan from PF is 60% of the current PF balance.")
+    print("6. There is 9% interest rate per annum on the loan taken.")
 
 # Delete an employee record
 def delete_employee(connection):
